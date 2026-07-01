@@ -1,16 +1,15 @@
 services:
-  auth-postgres:
-    image: postgres:17
-    container_name: auth-postgres
-    restart: unless-stopped
+  hunger:
+    image: postgres:18
+    container_name: hunger
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-auth_multi_tenants}
+      POSTGRES_DB: ${POSTGRES_DB:-hunger}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     volumes:
-      - auth_postgres_data:/var/lib/postgresql/data
+      - hunger:/var/lib/postgresql
 
 volumes:
-  auth_postgres_data:
+  hunger:

@@ -1,4 +1,4 @@
-package com.engineering_lab.auth_multi_tenants;
+package com.engineering_lab.hunger;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

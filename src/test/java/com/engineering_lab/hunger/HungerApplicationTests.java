@@ -1,10 +1,12 @@
-package com.engineering_lab.auth_multi_tenants;
+package com.engineering_lab.hunger;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
-class AuthMultiTenantsApplicationTests {
+@ActiveProfiles("test")
+class HungerApplicationTests {
 
 	@Test
 	void contextLoads() {

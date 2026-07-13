@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class AuthMultiTenantsApplication {
+public class HungerApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(AuthMultiTenantsApplication.class, args);
+		SpringApplication.run(HungerApplication.class, args);
 	}
 
 }

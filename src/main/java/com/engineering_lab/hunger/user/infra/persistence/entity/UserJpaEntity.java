@@ -1,9 +1,9 @@
-package com.engineering_lab.hunger.identity.infra.persistence.entity;
+package com.engineering_lab.hunger.user.infra.persistence.entity;
 
 import java.time.Instant;
 import java.util.UUID;
 
-import com.engineering_lab.hunger.identity.domain.UserStatus;
+import com.engineering_lab.hunger.user.domain.UserStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

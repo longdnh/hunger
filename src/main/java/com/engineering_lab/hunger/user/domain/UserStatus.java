@@ -1,4 +1,4 @@
-package com.engineering_lab.hunger.identity.domain;
+package com.engineering_lab.hunger.user.domain;
 
 public enum UserStatus {
     ACTIVE,

@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Generated;
 
-import com.engineering_lab.hunger.user.domain.UserStatus;
+import com.engineering_lab.hunger.membership.domain.model.MembershipStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -41,7 +41,7 @@ public class MembershipJpaEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private UserStatus status;
+    private MembershipStatus status;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

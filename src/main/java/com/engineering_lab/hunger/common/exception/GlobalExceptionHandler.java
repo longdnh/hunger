@@ -15,6 +15,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 
+import com.engineering_lab.hunger.tenant.domain.exception.TenantCodeAlreadyExistsException;
+import com.engineering_lab.hunger.tenant.domain.exception.TenantErrorCode;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private static final Logger LOG = LoggerFactory.getLogger(GlobalExceptionHandler.class);
@@ -84,6 +87,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return ResponseEntity
                 .status(exception.getStatus())
+                .body(response);
+    }
+
+    @ExceptionHandler(TenantCodeAlreadyExistsException.class)
+    public ResponseEntity<ApiErrorResponse> handleTenantCodeAlreadyExists(
+            TenantCodeAlreadyExistsException exception,
+            HttpServletRequest request) {
+        ApiErrorResponse response = new ApiErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                TenantErrorCode.TENANT_CODE_ALREADY_EXISTS,
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
                 .body(response);
     }
 

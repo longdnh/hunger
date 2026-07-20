@@ -38,4 +38,41 @@ public class TenantJpaEntity {
 
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
+
+    protected TenantJpaEntity() {
+    }
+
+    public TenantJpaEntity(
+            UUID tenantId,
+            String tenantName,
+            String tenantCode,
+            Instant createdAt,
+            Instant updatedAt
+    ) {
+        this.tenantId = tenantId;
+        this.tenantName = tenantName;
+        this.tenantCode = tenantCode;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    public UUID getTenantId() {
+        return tenantId;
+    }
+
+    public String getTenantName() {
+        return tenantName;
+    }
+
+    public String getTenantCode() {
+        return tenantCode;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
 }

@@ -11,6 +11,7 @@ public class MembershipDomain {
     private final UUID id;
     private final UUID userId;
     private final UUID tenantId;
+    private final MembershipRole role;
     private MembershipStatus status;
     private final Instant createdAt;
     private Instant updatedAt;
@@ -19,19 +20,21 @@ public class MembershipDomain {
             UUID id,
             UUID userId,
             UUID tenantId,
+            MembershipRole role,
             MembershipStatus status,
             Instant createdAt,
-        Instant updatedAt
+            Instant updatedAt
     ) {
         this.id = id;
         this.userId = Validator.requireUuidV7(userId, "userId");
         this.tenantId = Validator.requireUuidV7(tenantId, "tenantId");
+        this.role = Objects.requireNonNull(role, "role must not be null");
         this.status = Objects.requireNonNull(status, "status must not be null");
         this.createdAt = Objects.requireNonNull(createdAt, "createdAt must not be null");
         this.updatedAt = Validator.requireNotBefore(updatedAt, createdAt, "updatedAt");
     }
 
-    public static MembershipDomain create(
+    public static MembershipDomain createOwner(
             UUID userId,
             UUID tenantId,
             Instant createdAt
@@ -40,6 +43,7 @@ public class MembershipDomain {
                 null,
                 userId,
                 tenantId,
+                MembershipRole.OWNER,
                 MembershipStatus.ACTIVE,
                 createdAt,
                 createdAt
@@ -50,14 +54,16 @@ public class MembershipDomain {
             UUID id,
             UUID userId,
             UUID tenantId,
+            MembershipRole role,
             MembershipStatus status,
             Instant createdAt,
-        Instant updatedAt
+            Instant updatedAt
     ) {
         return new MembershipDomain(
                 Validator.requireUuidV7(id, "id"),
                 userId,
                 tenantId,
+                role,
                 status,
                 createdAt,
                 updatedAt
@@ -107,6 +113,10 @@ public class MembershipDomain {
 
     public MembershipStatus getStatus() {
         return status;
+    }
+
+    public MembershipRole getRole() {
+        return role;
     }
 
     public Instant getCreatedAt() {

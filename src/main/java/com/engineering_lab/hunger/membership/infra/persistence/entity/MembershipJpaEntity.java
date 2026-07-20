@@ -1,4 +1,4 @@
-package com.engineering_lab.hunger.membership.infra.entity;
+package com.engineering_lab.hunger.membership.infra.persistence.entity;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Generated;
 
+import com.engineering_lab.hunger.membership.domain.model.MembershipRole;
 import com.engineering_lab.hunger.membership.domain.model.MembershipStatus;
 
 import jakarta.persistence.Column;
@@ -40,6 +41,10 @@ public class MembershipJpaEntity {
     private UUID tenantId;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false, length = 20)
+    private MembershipRole role;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private MembershipStatus status;
 
@@ -48,4 +53,53 @@ public class MembershipJpaEntity {
 
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
+
+    protected MembershipJpaEntity() {
+    }
+
+    public MembershipJpaEntity(
+            UUID membershipId,
+            UUID userId,
+            UUID tenantId,
+            MembershipRole role,
+            MembershipStatus status,
+            Instant createdAt,
+            Instant updatedAt
+    ) {
+        this.membershipId = membershipId;
+        this.userId = userId;
+        this.tenantId = tenantId;
+        this.role = role;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    public UUID getMembershipId() {
+        return membershipId;
+    }
+
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public UUID getTenantId() {
+        return tenantId;
+    }
+
+    public MembershipRole getRole() {
+        return role;
+    }
+
+    public MembershipStatus getStatus() {
+        return status;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
 }

@@ -3,6 +3,7 @@ package com.engineering_lab.hunger.common.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,24 +11,54 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.engineering_lab.hunger.common.exception.ApiAccessDeniedHandler;
+import com.engineering_lab.hunger.common.exception.ApiAuthenticationEntryPoint;
+import com.engineering_lab.hunger.membership.domain.model.MembershipRole;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
-    @Order(1)
-    SecurityFilterChain apiSecurity(HttpSecurity http) throws Exception {
-        return http.securityMatcher("/api/**")
+    @Order(2)
+    SecurityFilterChain apiSecurity(
+            HttpSecurity http,
+            ApiAuthenticationEntryPoint authenticationEntryPoint,
+            ApiAccessDeniedHandler accessDeniedHandler) throws Exception {
+
+        return http
+                .securityMatcher("/api/**")
+
+                .cors(Customizer.withDefaults())
+
                 .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/login",
-                        "/api/auth/refresh")
-                        .permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .anyRequest()
-                        .authenticated())
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(
+                                SessionCreationPolicy.STATELESS))
+
+                .requestCache(cache -> cache.disable())
+
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable())
+                .logout(logout -> logout.disable())
+
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().authenticated())
+
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(
+                                authenticationEntryPoint)
+                        .accessDeniedHandler(
+                                accessDeniedHandler))
+
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(Customizer.withDefaults())
+                        .authenticationEntryPoint(
+                                authenticationEntryPoint))
+
                 .build();
     }
+
 }

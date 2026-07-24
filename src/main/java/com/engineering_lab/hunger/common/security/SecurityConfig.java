@@ -3,12 +3,15 @@ package com.engineering_lab.hunger.common.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
 import com.engineering_lab.hunger.common.exception.ApiAccessDeniedHandler;
 import com.engineering_lab.hunger.common.exception.ApiAuthenticationEntryPoint;
@@ -18,45 +21,102 @@ import com.engineering_lab.hunger.common.exception.ApiAuthenticationEntryPoint;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Bean
-    @Order(2)
-    SecurityFilterChain apiSecurity(
-            HttpSecurity http,
-            ApiAuthenticationEntryPoint authenticationEntryPoint,
-            ApiAccessDeniedHandler accessDeniedHandler) throws Exception {
+        @Bean
+        @Order(1)
+        SecurityFilterChain authenticationSecurity(
+                        HttpSecurity http,
+                        ApiAuthenticationEntryPoint authenticationEntryPoint,
+                        ApiAccessDeniedHandler accessDeniedHandler) throws Exception {
 
-        return http
-                .securityMatcher("/api/**")
+                CookieCsrfTokenRepository csrfRepository = new CookieCsrfTokenRepository();
 
-                .cors(Customizer.withDefaults())
+                csrfRepository.setCookieName("XSRF-TOKEN");
+                csrfRepository.setHeaderName("X-XSRF-TOKEN");
+                csrfRepository.setCookiePath("/");
 
-                .csrf(csrf -> csrf.disable())
+                return http
+                                .securityMatcher("/api/v1/auth/**")
 
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(
-                                SessionCreationPolicy.STATELESS))
+                                .cors(Customizer.withDefaults())
 
-                .requestCache(cache -> cache.disable())
+                                .csrf(csrf -> csrf
+                                                .csrfTokenRepository(csrfRepository)
+                                                .csrfTokenRequestHandler(
+                                                                new CsrfTokenRequestAttributeHandler()))
 
-                .formLogin(form -> form.disable())
-                .httpBasic(basic -> basic.disable())
-                .logout(logout -> logout.disable())
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(
+                                                                SessionCreationPolicy.STATELESS))
 
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().authenticated())
+                                .requestCache(cache -> cache.disable())
 
-                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(
-                                authenticationEntryPoint)
-                        .accessDeniedHandler(
-                                accessDeniedHandler))
+                                .formLogin(form -> form.disable())
+                                .httpBasic(basic -> basic.disable())
+                                .logout(logout -> logout.disable())
 
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(Customizer.withDefaults())
-                        .authenticationEntryPoint(
-                                authenticationEntryPoint))
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers(
+                                                                HttpMethod.GET,
+                                                                "/api/v1/auth/csrf")
+                                                .permitAll()
 
-                .build();
-    }
+                                                .requestMatchers(
+                                                                HttpMethod.POST,
+                                                                "/api/v1/auth/login",
+                                                                "/api/v1/auth/refresh",
+                                                                "/api/v1/auth/logout")
+                                                .permitAll()
+
+                                                .anyRequest().denyAll())
+
+                                .exceptionHandling(exception -> exception
+                                                .authenticationEntryPoint(
+                                                                authenticationEntryPoint)
+                                                .accessDeniedHandler(
+                                                                accessDeniedHandler))
+
+                                .build();
+        }
+
+        @Bean
+        @Order(2)
+        SecurityFilterChain apiSecurity(
+                        HttpSecurity http,
+                        ApiAuthenticationEntryPoint authenticationEntryPoint,
+                        ApiAccessDeniedHandler accessDeniedHandler) throws Exception {
+
+                return http
+                                .securityMatcher("/api/**")
+
+                                .cors(Customizer.withDefaults())
+
+                                .csrf(csrf -> csrf.disable())
+
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(
+                                                                SessionCreationPolicy.STATELESS))
+
+                                .requestCache(cache -> cache.disable())
+
+                                .formLogin(form -> form.disable())
+                                .httpBasic(basic -> basic.disable())
+                                .logout(logout -> logout.disable())
+
+                                .authorizeHttpRequests(auth -> auth
+                                                .anyRequest().authenticated())
+
+                                .exceptionHandling(exception -> exception
+                                                .authenticationEntryPoint(
+                                                                authenticationEntryPoint)
+                                                .accessDeniedHandler(
+                                                                accessDeniedHandler))
+
+                                .oauth2ResourceServer(oauth2 -> oauth2
+                                                .jwt(Customizer.withDefaults())
+                                                .authenticationEntryPoint(
+                                                                authenticationEntryPoint))
+
+                                .build();
+        }
 
 }

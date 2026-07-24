@@ -10,6 +10,14 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     volumes:
       - hunger:/var/lib/postgresql
+  
+  hunger-redis:
+    image: redis:7
+    container_name: hunger-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - hunger:/data
 
 volumes:
   hunger:

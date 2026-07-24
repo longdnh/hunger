@@ -119,4 +119,35 @@ public class SecurityConfig {
                                 .build();
         }
 
+        @Bean
+        @Order(3)
+        SecurityFilterChain fallbackSecurity(
+                        HttpSecurity http,
+                        ApiAuthenticationEntryPoint authenticationEntryPoint,
+                        ApiAccessDeniedHandler accessDeniedHandler) throws Exception {
+
+                return http
+                                .csrf(csrf -> csrf.disable())
+
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(
+                                                                SessionCreationPolicy.STATELESS))
+
+                                .requestCache(cache -> cache.disable())
+
+                                .formLogin(form -> form.disable())
+                                .httpBasic(basic -> basic.disable())
+                                .logout(logout -> logout.disable())
+
+                                .authorizeHttpRequests(auth -> auth
+                                                .anyRequest().denyAll())
+
+                                .exceptionHandling(exception -> exception
+                                                .authenticationEntryPoint(
+                                                                authenticationEntryPoint)
+                                                .accessDeniedHandler(
+                                                                accessDeniedHandler))
+
+                                .build();
+        }
 }

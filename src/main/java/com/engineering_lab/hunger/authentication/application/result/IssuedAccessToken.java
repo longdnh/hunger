@@ -17,4 +17,11 @@ public record IssuedAccessToken(
                 expiresAt,
                 "expiresAt must not be null");
     }
+
+    @Override
+    public String toString() {
+        return "IssuedAccessToken[token=[REDACTED], expiresAt="
+                + expiresAt + "]";
+    }
+
 }

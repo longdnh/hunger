@@ -12,31 +12,33 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Component;
 
-import com.engineering_lab.hunger.authentication.application.result.IssuedAccessToken;
-import com.engineering_lab.hunger.authentication.application.security.AccessTokenIssuer;
+import com.engineering_lab.hunger.authentication.application.port.AccessTokenIssuerPort;
+import com.engineering_lab.hunger.authentication.application.result.IssuedAccessTokenResult;
 import com.engineering_lab.hunger.common.security.jwt.JwtProperties;
 
 @Component
-public class JwtAccessTokenIssuer
-        implements AccessTokenIssuer {
+public class JwtAccessTokenIssuerAdapter
+        implements AccessTokenIssuerPort {
 
     private final JwtEncoder jwtEncoder;
     private final JwtProperties jwtProperties;
     private final Clock clock;
 
-    public JwtAccessTokenIssuer(
+    public JwtAccessTokenIssuerAdapter(
             JwtEncoder jwtEncoder,
             JwtProperties jwtProperties,
-            Clock clock) {
+            Clock clock
+    ) {
         this.jwtEncoder = jwtEncoder;
         this.jwtProperties = jwtProperties;
         this.clock = clock;
     }
 
     @Override
-    public IssuedAccessToken issue(
+    public IssuedAccessTokenResult issue(
             UUID userId,
-            UUID sessionId) {
+            UUID sessionId
+    ) {
         Objects.requireNonNull(
                 userId,
                 "userId must not be null");
@@ -62,7 +64,7 @@ public class JwtAccessTokenIssuer
         Jwt jwt = jwtEncoder.encode(
                 JwtEncoderParameters.from(claims));
 
-        return new IssuedAccessToken(
+        return new IssuedAccessTokenResult(
                 jwt.getTokenValue(),
                 expiresAt);
     }

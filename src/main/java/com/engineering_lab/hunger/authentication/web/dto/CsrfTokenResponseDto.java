@@ -2,12 +2,15 @@ package com.engineering_lab.hunger.authentication.web.dto;
 
 import org.springframework.security.web.csrf.CsrfToken;
 
-public record CsrfTokenResponse(
+public record CsrfTokenResponseDto(
         String token,
-        String headerName) {
+        String headerName
+) {
 
-    public static CsrfTokenResponse from(CsrfToken csrfToken) {
-        return new CsrfTokenResponse(
+    public static CsrfTokenResponseDto from(
+            CsrfToken csrfToken
+    ) {
+        return new CsrfTokenResponseDto(
                 csrfToken.getToken(),
                 csrfToken.getHeaderName());
     }

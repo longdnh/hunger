@@ -1,13 +1,14 @@
 package com.engineering_lab.hunger.authentication.application.result;
 
-public final class GeneratedRefreshToken {
+public final class GeneratedRefreshTokenResult {
 
     private final String value;
     private final String hash;
 
-    public GeneratedRefreshToken(
+    public GeneratedRefreshTokenResult(
             String value,
-            String hash) {
+            String hash
+    ) {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException(
                     "value must not be blank");

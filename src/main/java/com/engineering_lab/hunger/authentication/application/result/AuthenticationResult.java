@@ -3,18 +3,19 @@ package com.engineering_lab.hunger.authentication.application.result;
 import java.time.Instant;
 import java.util.Objects;
 
-public final class AuthenticationTokens {
+public final class AuthenticationResult {
 
     private final String accessToken;
     private final Instant accessTokenExpiresAt;
     private final String refreshToken;
     private final Instant refreshTokenExpiresAt;
 
-    public AuthenticationTokens(
+    public AuthenticationResult(
             String accessToken,
             Instant accessTokenExpiresAt,
             String refreshToken,
-            Instant refreshTokenExpiresAt) {
+            Instant refreshTokenExpiresAt
+    ) {
         if (accessToken == null || accessToken.isBlank()) {
             throw new IllegalArgumentException(
                     "accessToken must not be blank");

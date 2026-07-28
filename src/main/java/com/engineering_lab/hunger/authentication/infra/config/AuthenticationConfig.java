@@ -8,5 +8,5 @@ import org.springframework.context.annotation.Configuration;
         AuthenticationProperties.class,
         RefreshTokenCookieProperties.class
 })
-public class AuthenticationPropertiesConfiguration {
+public class AuthenticationConfig {
 }

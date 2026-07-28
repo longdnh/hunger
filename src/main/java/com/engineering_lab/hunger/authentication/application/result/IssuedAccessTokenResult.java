@@ -3,11 +3,12 @@ package com.engineering_lab.hunger.authentication.application.result;
 import java.time.Instant;
 import java.util.Objects;
 
-public record IssuedAccessToken(
+public record IssuedAccessTokenResult(
         String token,
-        Instant expiresAt) {
+        Instant expiresAt
+) {
 
-    public IssuedAccessToken {
+    public IssuedAccessTokenResult {
         if (token == null || token.isBlank()) {
             throw new IllegalArgumentException(
                     "token must not be blank");
@@ -20,8 +21,7 @@ public record IssuedAccessToken(
 
     @Override
     public String toString() {
-        return "IssuedAccessToken[token=[REDACTED], expiresAt="
+        return "IssuedAccessTokenResult[token=[REDACTED], expiresAt="
                 + expiresAt + "]";
     }
-
 }

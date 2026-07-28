@@ -10,13 +10,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.engineering_lab.hunger.authentication.api.LoginUseCase;
-import com.engineering_lab.hunger.authentication.application.command.LoginCommand;
-import com.engineering_lab.hunger.authentication.application.result.AuthenticationTokens;
+import com.engineering_lab.hunger.authentication.application.AuthenticationService;
+import com.engineering_lab.hunger.authentication.application.result.AuthenticationResult;
 import com.engineering_lab.hunger.authentication.web.cookie.RefreshTokenCookieFactory;
-import com.engineering_lab.hunger.authentication.web.dto.CsrfTokenResponse;
-import com.engineering_lab.hunger.authentication.web.dto.LoginRequest;
-import com.engineering_lab.hunger.authentication.web.dto.LoginResponse;
+import com.engineering_lab.hunger.authentication.web.dto.CsrfTokenResponseDto;
+import com.engineering_lab.hunger.authentication.web.dto.LoginRequestDto;
+import com.engineering_lab.hunger.authentication.web.dto.LoginResponseDto;
 
 import jakarta.validation.Valid;
 
@@ -24,29 +23,27 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/v1/auth")
 public class AuthenticationController {
 
-    private final LoginUseCase loginUseCase;
+    private final AuthenticationService authenticationService;
     private final RefreshTokenCookieFactory refreshTokenCookieFactory;
 
     public AuthenticationController(
-            LoginUseCase loginUseCase,
+            AuthenticationService authenticationService,
             RefreshTokenCookieFactory refreshTokenCookieFactory) {
-        this.loginUseCase = loginUseCase;
+        this.authenticationService = authenticationService;
         this.refreshTokenCookieFactory = refreshTokenCookieFactory;
     }
 
     @GetMapping("/csrf")
-    public CsrfTokenResponse csrf(CsrfToken csrfToken) {
-        return CsrfTokenResponse.from(csrfToken);
+    public CsrfTokenResponseDto csrf(CsrfToken csrfToken) {
+        return CsrfTokenResponseDto.from(csrfToken);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(
-            @Valid @RequestBody LoginRequest request) {
-        LoginCommand command = new LoginCommand(
+    public ResponseEntity<LoginResponseDto> login(
+            @Valid @RequestBody LoginRequestDto request) {
+        AuthenticationResult result = authenticationService.login(
                 request.email(),
                 request.password());
-
-        AuthenticationTokens result = loginUseCase.login(command);
 
         ResponseCookie refreshTokenCookie = refreshTokenCookieFactory.create(
                 result.refreshToken(),
@@ -57,7 +54,7 @@ public class AuthenticationController {
                 .header(
                         HttpHeaders.SET_COOKIE,
                         refreshTokenCookie.toString())
-                .body(LoginResponse.from(result));
+                .body(LoginResponseDto.from(result));
     }
 
 }

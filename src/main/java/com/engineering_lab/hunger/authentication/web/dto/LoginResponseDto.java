@@ -3,13 +3,14 @@ package com.engineering_lab.hunger.authentication.web.dto;
 import java.time.Instant;
 import java.util.Objects;
 
-import com.engineering_lab.hunger.authentication.application.result.AuthenticationTokens;
+import com.engineering_lab.hunger.authentication.application.result.AuthenticationResult;
 
-public record LoginResponse(
+public record LoginResponseDto(
         String accessToken,
-        Instant accessTokenExpiresAt) {
+        Instant accessTokenExpiresAt
+) {
 
-    public LoginResponse {
+    public LoginResponseDto {
         if (accessToken == null || accessToken.isBlank()) {
             throw new IllegalArgumentException(
                     "accessToken must not be blank");
@@ -20,12 +21,14 @@ public record LoginResponse(
                 "accessTokenExpiresAt must not be null");
     }
 
-    public static LoginResponse from(AuthenticationTokens result) {
+    public static LoginResponseDto from(
+            AuthenticationResult result
+    ) {
         Objects.requireNonNull(
                 result,
                 "result must not be null");
 
-        return new LoginResponse(
+        return new LoginResponseDto(
                 result.accessToken(),
                 result.accessTokenExpiresAt());
     }
@@ -33,7 +36,7 @@ public record LoginResponse(
     @Override
     public String toString() {
         return """
-                LoginResponse[
+                LoginResponseDto[
                     accessToken=[REDACTED],
                     accessTokenExpiresAt=%s
                 ]

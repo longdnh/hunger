@@ -6,14 +6,15 @@ import java.util.Objects;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
-import com.engineering_lab.hunger.authentication.application.security.AuthenticationPolicy;
+import com.engineering_lab.hunger.authentication.application.port.AuthenticationPolicyPort;
 
 import jakarta.validation.constraints.NotNull;
 
 @Validated
 @ConfigurationProperties(prefix = "security.authentication")
 public record AuthenticationProperties(
-        @NotNull Duration refreshTokenTtl) implements AuthenticationPolicy {
+        @NotNull Duration refreshTokenTtl
+) implements AuthenticationPolicyPort {
 
     public AuthenticationProperties {
         Objects.requireNonNull(

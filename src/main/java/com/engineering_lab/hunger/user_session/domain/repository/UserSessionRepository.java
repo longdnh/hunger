@@ -8,5 +8,5 @@ public interface UserSessionRepository {
 
     UserSessionDomain save(UserSessionDomain session);
 
-    Optional<UserSessionDomain> findByTokenHash(String tokenHash);
+    Optional<UserSessionDomain> findByTokenHashForUpdate(String tokenHash);
 }

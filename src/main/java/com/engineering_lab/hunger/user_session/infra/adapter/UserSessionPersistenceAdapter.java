@@ -31,10 +31,10 @@ public class UserSessionPersistenceAdapter
     }
 
     @Override
-    public Optional<UserSessionDomain> findByTokenHash(
+    public Optional<UserSessionDomain> findByTokenHashForUpdate(
             String tokenHash) {
         return repository
-                .findByTokenHash(tokenHash)
+                .findByTokenHashForUpdate(tokenHash)
                 .map(UserSessionPersistenceMapper::toDomain);
     }
 }

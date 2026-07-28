@@ -61,7 +61,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                     exception.getClass().getSimpleName());
         }
 
-        ApiErrorResponse response = new ApiErrorResponse(
+        ApiErrorResponseDto response = new ApiErrorResponseDto(
                 statusCode.value(),
                 code,
                 publicMessage(statusCode),
@@ -75,11 +75,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     // Handle custom application exceptions
     @ExceptionHandler(AppException.class)
-    public ResponseEntity<ApiErrorResponse> handleAppException(
+    public ResponseEntity<ApiErrorResponseDto> handleAppException(
             AppException exception,
             HttpServletRequest request) {
 
-        ApiErrorResponse response = new ApiErrorResponse(
+        ApiErrorResponseDto response = new ApiErrorResponseDto(
                 exception.getStatus().value(),
                 exception.getCode(),
                 exception.getMessage(),
@@ -91,10 +91,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(TenantCodeAlreadyExistsException.class)
-    public ResponseEntity<ApiErrorResponse> handleTenantCodeAlreadyExists(
+    public ResponseEntity<ApiErrorResponseDto> handleTenantCodeAlreadyExists(
             TenantCodeAlreadyExistsException exception,
             HttpServletRequest request) {
-        ApiErrorResponse response = new ApiErrorResponse(
+        ApiErrorResponseDto response = new ApiErrorResponseDto(
                 HttpStatus.CONFLICT.value(),
                 TenantErrorCode.TENANT_CODE_ALREADY_EXISTS,
                 exception.getMessage(),
@@ -108,7 +108,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     // Handle any other unexpected exceptions that may occur
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiErrorResponse> handleUnexpectedException(
+    public ResponseEntity<ApiErrorResponseDto> handleUnexpectedException(
             Exception exception,
             HttpServletRequest request) {
 
@@ -118,7 +118,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 request.getRequestURI(),
                 exception);
 
-        ApiErrorResponse response = new ApiErrorResponse(
+        ApiErrorResponseDto response = new ApiErrorResponseDto(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "INTERNAL_SERVER_ERROR",
                 "An unexpected error occurred",

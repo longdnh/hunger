@@ -19,9 +19,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
-import com.engineering_lab.hunger.tenant.api.CreateTenantUseCase;
-import com.engineering_lab.hunger.tenant.application.command.CreateTenantCommand;
-import com.engineering_lab.hunger.tenant.application.result.CreatedTenant;
+import com.engineering_lab.hunger.tenant.application.TenantService;
+import com.engineering_lab.hunger.tenant.application.result.CreateTenantResult;
 
   @Testcontainers
   @SpringBootTest
@@ -44,7 +43,7 @@ import com.engineering_lab.hunger.tenant.application.result.CreatedTenant;
 					.withPassword("postgres");
 
 	@Autowired
-	CreateTenantUseCase createTenantUseCase;
+	TenantService tenantService;
 
 	@Autowired
 	JdbcTemplate jdbcTemplate;
@@ -80,11 +79,11 @@ import com.engineering_lab.hunger.tenant.application.result.CreatedTenant;
 				Timestamp.from(now)
 		);
 
-		CreatedTenant tenant = createTenantUseCase.execute(new CreateTenantCommand(
+		CreateTenantResult tenant = tenantService.create(
 				USER_ID,
 				"Engineering Lab",
 				"LAB01"
-		));
+		);
 
 		assertEquals(7, tenant.tenantId().version());
 		assertEquals(

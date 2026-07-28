@@ -5,7 +5,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,9 +21,11 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.engineering_lab.hunger.common.exception.GlobalExceptionHandler;
 import com.engineering_lab.hunger.common.security.AuthenticatedUserIdResolver;
-import com.engineering_lab.hunger.tenant.api.CreateTenantUseCase;
-import com.engineering_lab.hunger.tenant.application.command.CreateTenantCommand;
-import com.engineering_lab.hunger.tenant.application.result.CreatedTenant;
+import com.engineering_lab.hunger.membership.application.port.MembershipRepositoryPort;
+import com.engineering_lab.hunger.membership.domain.model.MembershipDomain;
+import com.engineering_lab.hunger.tenant.application.TenantService;
+import com.engineering_lab.hunger.tenant.application.port.TenantRepositoryPort;
+import com.engineering_lab.hunger.tenant.domain.model.TenantDomain;
 
 class TenantControllerTest {
     private static final UUID USER_ID = UUID.fromString(
@@ -33,13 +37,20 @@ class TenantControllerTest {
     private static final Instant CREATED_AT = Instant.parse("2026-07-19T08:00:00Z");
 
     private MockMvc mockMvc;
-    private CapturingCreateTenantUseCase useCase;
+    private CapturingMembershipRepositoryPort membershipRepository;
 
     @BeforeEach
     void setUp() {
-        useCase = new CapturingCreateTenantUseCase();
+        membershipRepository =
+                new CapturingMembershipRepositoryPort();
+
+        TenantService tenantService = new TenantService(
+                new FakeTenantRepositoryPort(),
+                membershipRepository,
+                Clock.fixed(CREATED_AT, ZoneOffset.UTC));
+
         TenantController controller = new TenantController(
-                useCase,
+                tenantService,
                 new AuthenticatedUserIdResolver()
         );
         mockMvc = MockMvcBuilders
@@ -71,7 +82,9 @@ class TenantControllerTest {
                 .andExpect(jsonPath("$.name").value("Engineering Lab"))
                 .andExpect(jsonPath("$.tenantCode").value("HN_01"));
 
-        org.junit.jupiter.api.Assertions.assertEquals(USER_ID, useCase.command.creatorUserId());
+        org.junit.jupiter.api.Assertions.assertEquals(
+                USER_ID,
+                membershipRepository.saved.getUserId());
     }
 
     @Test
@@ -100,18 +113,36 @@ class TenantControllerTest {
                 .andExpect(jsonPath("$.code").value("AUTHENTICATION_REQUIRED"));
     }
 
-    private static final class CapturingCreateTenantUseCase implements CreateTenantUseCase {
-        private CreateTenantCommand command;
+    private static final class FakeTenantRepositoryPort
+            implements TenantRepositoryPort {
 
         @Override
-        public CreatedTenant execute(CreateTenantCommand command) {
-            this.command = command;
-            return new CreatedTenant(
+        public boolean existsByTenantCode(String tenantCode) {
+            return false;
+        }
+
+        @Override
+        public TenantDomain save(TenantDomain tenant) {
+            return TenantDomain.rehydrate(
                     TENANT_ID,
-                    command.name(),
-                    command.tenantCode().toUpperCase(),
-                    CREATED_AT
-            );
+                    tenant.getName(),
+                    tenant.getTenantCode(),
+                    tenant.getCreatedAt(),
+                    tenant.getUpdatedAt());
+        }
+    }
+
+    private static final class CapturingMembershipRepositoryPort
+            implements MembershipRepositoryPort {
+
+        private MembershipDomain saved;
+
+        @Override
+        public MembershipDomain save(
+                MembershipDomain membership
+        ) {
+            saved = membership;
+            return membership;
         }
     }
 }

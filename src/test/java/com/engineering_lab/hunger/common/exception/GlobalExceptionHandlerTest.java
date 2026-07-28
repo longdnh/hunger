@@ -60,7 +60,7 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void malformedJsonUsesTheStandardApiErrorResponse() throws Exception {
+    void malformedJsonUsesTheStandardApiErrorResponseDto() throws Exception {
         mockMvc.perform(post("/test/json")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{"))

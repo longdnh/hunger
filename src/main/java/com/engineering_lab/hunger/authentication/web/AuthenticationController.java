@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.engineering_lab.hunger.authentication.api.LoginUseCase;
 import com.engineering_lab.hunger.authentication.application.command.LoginCommand;
-import com.engineering_lab.hunger.authentication.application.result.LoginResult;
+import com.engineering_lab.hunger.authentication.application.result.AuthenticationTokens;
 import com.engineering_lab.hunger.authentication.web.cookie.RefreshTokenCookieFactory;
 import com.engineering_lab.hunger.authentication.web.dto.CsrfTokenResponse;
 import com.engineering_lab.hunger.authentication.web.dto.LoginRequest;
@@ -46,7 +46,7 @@ public class AuthenticationController {
                 request.email(),
                 request.password());
 
-        LoginResult result = loginUseCase.login(command);
+        AuthenticationTokens result = loginUseCase.login(command);
 
         ResponseCookie refreshTokenCookie = refreshTokenCookieFactory.create(
                 result.refreshToken(),

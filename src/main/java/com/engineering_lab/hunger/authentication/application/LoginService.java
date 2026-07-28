@@ -13,7 +13,7 @@ import com.engineering_lab.hunger.authentication.application.command.LoginComman
 import com.engineering_lab.hunger.authentication.application.exception.InvalidCredentialsException;
 import com.engineering_lab.hunger.authentication.application.result.GeneratedRefreshToken;
 import com.engineering_lab.hunger.authentication.application.result.IssuedAccessToken;
-import com.engineering_lab.hunger.authentication.application.result.LoginResult;
+import com.engineering_lab.hunger.authentication.application.result.AuthenticationTokens;
 import com.engineering_lab.hunger.authentication.application.security.AccessTokenIssuer;
 import com.engineering_lab.hunger.authentication.application.security.AuthenticationPolicy;
 import com.engineering_lab.hunger.authentication.application.security.RefreshTokenGenerator;
@@ -61,7 +61,7 @@ public class LoginService implements LoginUseCase {
 
     @Override
     @Transactional
-    public LoginResult login(LoginCommand command) {
+    public AuthenticationTokens login(LoginCommand command) {
         UserDomain user = authenticate(command);
         Instant issuedAt = clock.instant();
         GeneratedRefreshToken refreshToken = refreshTokenGenerator.generate();
@@ -80,7 +80,7 @@ public class LoginService implements LoginUseCase {
                 user.getId(),
                 savedSession.getId());
 
-        return new LoginResult(
+        return new AuthenticationTokens(
                 accessToken.token(),
                 accessToken.expiresAt(),
                 refreshToken.value(),

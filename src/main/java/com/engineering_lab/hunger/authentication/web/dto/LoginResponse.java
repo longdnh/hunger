@@ -3,7 +3,7 @@ package com.engineering_lab.hunger.authentication.web.dto;
 import java.time.Instant;
 import java.util.Objects;
 
-import com.engineering_lab.hunger.authentication.application.result.LoginResult;
+import com.engineering_lab.hunger.authentication.application.result.AuthenticationTokens;
 
 public record LoginResponse(
         String accessToken,
@@ -20,7 +20,7 @@ public record LoginResponse(
                 "accessTokenExpiresAt must not be null");
     }
 
-    public static LoginResponse from(LoginResult result) {
+    public static LoginResponse from(AuthenticationTokens result) {
         Objects.requireNonNull(
                 result,
                 "result must not be null");

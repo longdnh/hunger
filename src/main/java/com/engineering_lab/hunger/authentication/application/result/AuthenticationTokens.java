@@ -3,14 +3,14 @@ package com.engineering_lab.hunger.authentication.application.result;
 import java.time.Instant;
 import java.util.Objects;
 
-public final class LoginResult {
+public final class AuthenticationTokens {
 
     private final String accessToken;
     private final Instant accessTokenExpiresAt;
     private final String refreshToken;
     private final Instant refreshTokenExpiresAt;
 
-    public LoginResult(
+    public AuthenticationTokens(
             String accessToken,
             Instant accessTokenExpiresAt,
             String refreshToken,

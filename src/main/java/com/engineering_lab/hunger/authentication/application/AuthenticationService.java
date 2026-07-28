@@ -17,11 +17,11 @@ import com.engineering_lab.hunger.authentication.application.result.Authenticati
 import com.engineering_lab.hunger.authentication.application.result.GeneratedRefreshTokenResult;
 import com.engineering_lab.hunger.authentication.application.result.IssuedAccessTokenResult;
 import com.engineering_lab.hunger.common.validator.Validator;
+import com.engineering_lab.hunger.user.application.port.PasswordHasherPort;
+import com.engineering_lab.hunger.user.application.port.UserRepositoryPort;
 import com.engineering_lab.hunger.user.domain.model.UserDomain;
-import com.engineering_lab.hunger.user.domain.repository.UserRepository;
-import com.engineering_lab.hunger.user.domain.security.PasswordHasher;
-import com.engineering_lab.hunger.user_session.domain.model.UserSessionDomain;
-import com.engineering_lab.hunger.user_session.domain.repository.UserSessionRepository;
+import com.engineering_lab.hunger.usersession.application.port.UserSessionRepositoryPort;
+import com.engineering_lab.hunger.usersession.domain.model.UserSessionDomain;
 
 @Service
 public class AuthenticationService {
@@ -29,9 +29,9 @@ public class AuthenticationService {
     private static final String INVALID_EMAIL =
             "invalid-login@example.invalid";
 
-    private final UserRepository userRepository;
-    private final UserSessionRepository userSessionRepository;
-    private final PasswordHasher passwordHasher;
+    private final UserRepositoryPort userRepository;
+    private final UserSessionRepositoryPort userSessionRepository;
+    private final PasswordHasherPort passwordHasher;
     private final RefreshTokenGeneratorPort refreshTokenGenerator;
     private final AccessTokenIssuerPort accessTokenIssuer;
     private final AuthenticationPolicyPort authenticationPolicy;
@@ -39,9 +39,9 @@ public class AuthenticationService {
     private final String dummyPasswordHash;
 
     public AuthenticationService(
-            UserRepository userRepository,
-            UserSessionRepository userSessionRepository,
-            PasswordHasher passwordHasher,
+            UserRepositoryPort userRepository,
+            UserSessionRepositoryPort userSessionRepository,
+            PasswordHasherPort passwordHasher,
             RefreshTokenGeneratorPort refreshTokenGenerator,
             AccessTokenIssuerPort accessTokenIssuer,
             AuthenticationPolicyPort authenticationPolicy,

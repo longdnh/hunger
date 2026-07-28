@@ -12,39 +12,41 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.engineering_lab.hunger.common.security.AuthenticatedUserIdResolver;
-import com.engineering_lab.hunger.tenant.api.CreateTenantUseCase;
-import com.engineering_lab.hunger.tenant.application.command.CreateTenantCommand;
-import com.engineering_lab.hunger.tenant.application.result.CreatedTenant;
-import com.engineering_lab.hunger.tenant.web.dto.CreateTenantRequest;
-import com.engineering_lab.hunger.tenant.web.dto.CreateTenantResponse;
+import com.engineering_lab.hunger.tenant.application.TenantService;
+import com.engineering_lab.hunger.tenant.application.result.CreateTenantResult;
+import com.engineering_lab.hunger.tenant.web.dto.CreateTenantRequestDto;
+import com.engineering_lab.hunger.tenant.web.dto.CreateTenantResponseDto;
 
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/tenants")
 public class TenantController {
-    private final CreateTenantUseCase createTenantUseCase;
+
+    private final TenantService tenantService;
     private final AuthenticatedUserIdResolver authenticatedUserIdResolver;
 
     public TenantController(
-            CreateTenantUseCase createTenantUseCase,
+            TenantService tenantService,
             AuthenticatedUserIdResolver authenticatedUserIdResolver
     ) {
-        this.createTenantUseCase = createTenantUseCase;
+        this.tenantService = tenantService;
         this.authenticatedUserIdResolver = authenticatedUserIdResolver;
     }
 
     @PostMapping
-    public ResponseEntity<CreateTenantResponse> createTenant(
-            @Valid @RequestBody CreateTenantRequest request,
+    public ResponseEntity<CreateTenantResponseDto> createTenant(
+            @Valid @RequestBody CreateTenantRequestDto request,
             Authentication authentication
     ) {
-        UUID creatorUserId = authenticatedUserIdResolver.resolve(authentication);
-        CreatedTenant tenant = createTenantUseCase.execute(new CreateTenantCommand(
+        UUID creatorUserId =
+                authenticatedUserIdResolver.resolve(
+                        authentication);
+
+        CreateTenantResult tenant = tenantService.create(
                 creatorUserId,
                 request.name(),
-                request.tenantCode()
-        ));
+                request.tenantCode());
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -54,6 +56,6 @@ public class TenantController {
 
         return ResponseEntity
                 .created(location)
-                .body(CreateTenantResponse.from(tenant));
+                .body(CreateTenantResponseDto.from(tenant));
     }
 }

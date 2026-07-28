@@ -26,7 +26,7 @@ public class ApiAccessDeniedHandler
         response.setStatus(HttpStatus.FORBIDDEN.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        // Serialize ApiErrorResponse:
+        // Serialize ApiErrorResponseDto:
         // status = 403
         // code = "ACCESS_DENIED"
     }

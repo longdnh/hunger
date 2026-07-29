@@ -10,6 +10,20 @@ public final class UserJpaMapper {
                 "Utility class must not be instantiated");
     }
 
+    public static UserJpaEntity toEntity(
+            UserDomain user
+    ) {
+        return new UserJpaEntity(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getNormalizedEmail(),
+                user.getPasswordHash(),
+                user.getEmailVerifiedAt(),
+                user.getCreatedAt(),
+                user.getUpdatedAt());
+    }
+
     public static UserDomain toDomain(
             UserJpaEntity user) {
         return UserDomain.rehydrate(

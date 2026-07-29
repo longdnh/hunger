@@ -3,6 +3,7 @@ package com.engineering_lab.hunger.user.application.exception;
 import org.springframework.http.HttpStatus;
 
 import com.engineering_lab.hunger.common.exception.AppException;
+import com.engineering_lab.hunger.user.domain.exception.UserErrorCode;
 
 public final class EmailAlreadyExistsException
         extends AppException {
@@ -10,7 +11,7 @@ public final class EmailAlreadyExistsException
     public EmailAlreadyExistsException() {
         super(
                 HttpStatus.CONFLICT,
-                "EMAIL_ALREADY_EXISTS",
+                UserErrorCode.EMAIL_ALREADY_EXISTS,
                 "Email is already in use");
     }
 }

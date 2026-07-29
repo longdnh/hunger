@@ -1,8 +1,8 @@
 package com.engineering_lab.hunger.user.web;
 
-import java.net.URI;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.engineering_lab.hunger.common.security.AuthenticatedUserIdResolver;
 import com.engineering_lab.hunger.user.application.UserService;
@@ -45,14 +44,8 @@ public class UserController {
                 request.email(),
                 request.password());
 
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentContextPath()
-                .path("/api/v1/users/{userId}")
-                .buildAndExpand(user.userId())
-                .toUri();
-
         return ResponseEntity
-                .created(location)
+                .status(HttpStatus.CREATED)
                 .body(UserResponseDto.from(user));
     }
 

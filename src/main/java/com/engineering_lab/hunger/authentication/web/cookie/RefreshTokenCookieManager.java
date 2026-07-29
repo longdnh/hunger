@@ -81,4 +81,15 @@ public class RefreshTokenCookieManager {
 
         return Optional.empty();
     }
+
+    public ResponseCookie delete() {
+        return ResponseCookie
+                .from(properties.name(), "")
+                .httpOnly(true)
+                .secure(properties.secure())
+                .sameSite(properties.sameSite())
+                .path(properties.path())
+                .maxAge(Duration.ZERO)
+                .build();
+    }
 }

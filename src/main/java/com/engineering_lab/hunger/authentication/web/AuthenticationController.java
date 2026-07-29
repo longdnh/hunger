@@ -67,14 +67,33 @@ public class AuthenticationController {
         return authenticationResponse(result);
     }
 
-    private ResponseEntity<AuthenticationResponseDto>
-            authenticationResponse(
-                    AuthenticationResult result
-            ) {
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(
+            HttpServletRequest request
+    ) {
+        authenticationService.logout(
+                refreshTokenCookieManager
+                        .read(request)
+                        .orElse(null));
+
+        ResponseCookie deletedRefreshTokenCookie =
+                refreshTokenCookieManager.delete();
+
+        return ResponseEntity
+                .noContent()
+                .header(
+                        HttpHeaders.SET_COOKIE,
+                        deletedRefreshTokenCookie.toString())
+                .build();
+    }
+
+    private ResponseEntity<AuthenticationResponseDto> authenticationResponse(
+            AuthenticationResult result
+    ) {
         ResponseCookie refreshTokenCookie =
                 refreshTokenCookieManager.create(
-                result.refreshToken(),
-                result.refreshTokenExpiresAt());
+                        result.refreshToken(),
+                        result.refreshTokenExpiresAt());
 
         return ResponseEntity
                 .ok()
@@ -83,5 +102,4 @@ public class AuthenticationController {
                         refreshTokenCookie.toString())
                 .body(AuthenticationResponseDto.from(result));
     }
-
 }

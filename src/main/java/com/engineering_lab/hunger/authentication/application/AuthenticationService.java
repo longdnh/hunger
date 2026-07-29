@@ -103,6 +103,24 @@ public class AuthenticationService {
                 now);
     }
 
+    @Transactional
+    public void logout(String rawRefreshToken) {
+        if (rawRefreshToken == null
+                || rawRefreshToken.isBlank()) {
+            return;
+        }
+
+        String tokenHash = refreshTokenGenerator.hash(
+                rawRefreshToken);
+
+        userSessionRepository
+                .findByTokenHashForUpdate(tokenHash)
+                .ifPresent(session -> {
+                    session.revoke(clock.instant());
+                    userSessionRepository.save(session);
+                });
+    }
+
     private UserDomain authenticate(
             String email,
             String password

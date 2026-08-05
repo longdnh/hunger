@@ -3,13 +3,13 @@ package com.engineering_lab.hunger.user.application;
 import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.engineering_lab.hunger.common.validator.Validator;
-import com.engineering_lab.hunger.user.application.exception.EmailAlreadyExistsException;
 import com.engineering_lab.hunger.user.application.exception.InvalidRegistrationException;
 import com.engineering_lab.hunger.user.application.exception.UserNotFoundException;
 import com.engineering_lab.hunger.user.application.port.PasswordHasherPort;
@@ -38,7 +38,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserResult register(
+    public UserResult bootstrapTopAdmin(
             String name,
             String email,
             String password
@@ -67,15 +67,22 @@ public class UserService {
         String normalizedEmail = Validator.normalizeEmail(
                 validatedEmail);
 
-        if (userRepository.existsByNormalizedEmail(
-                normalizedEmail)) {
-            throw new EmailAlreadyExistsException();
+        Optional<UserDomain> existingUser =
+                userRepository.findByNormalizedEmail(
+                        normalizedEmail);
+
+        if (existingUser.isPresent()) {
+            UserDomain user = existingUser.get();
+            user.grantTopAdmin(clock.instant());
+
+            return UserResult.from(
+                    userRepository.save(user));
         }
 
         Instant now = clock.instant();
         String passwordHash = passwordHasher.hash(password);
 
-        UserDomain user = UserDomain.create(
+        UserDomain user = UserDomain.createTopAdmin(
                 validatedName,
                 validatedEmail,
                 passwordHash,

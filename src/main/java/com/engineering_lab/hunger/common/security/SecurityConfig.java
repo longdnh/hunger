@@ -103,11 +103,6 @@ public class SecurityConfig {
                                 .logout(logout -> logout.disable())
 
                                 .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers(
-                                                                HttpMethod.POST,
-                                                                "/api/v1/users/register")
-                                                .permitAll()
-
                                                 .anyRequest().authenticated())
 
                                 .exceptionHandling(exception -> exception

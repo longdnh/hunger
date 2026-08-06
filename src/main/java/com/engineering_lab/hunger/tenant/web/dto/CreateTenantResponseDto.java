@@ -9,7 +9,11 @@ public record CreateTenantResponseDto(
         UUID tenantId,
         String name,
         String tenantCode,
-        Instant createdAt
+        Instant createdAt,
+        UUID companyAdminUserId,
+        String companyAdminEmail,
+        String companyAdminActivationToken,
+        Instant companyAdminActivationExpiresAt
 ) {
     public static CreateTenantResponseDto from(
             CreateTenantResult tenant
@@ -18,7 +22,11 @@ public record CreateTenantResponseDto(
                 tenant.tenantId(),
                 tenant.name(),
                 tenant.tenantCode(),
-                tenant.createdAt()
+                tenant.createdAt(),
+                tenant.companyAdminUserId(),
+                tenant.companyAdminEmail(),
+                tenant.companyAdminActivationToken(),
+                tenant.companyAdminActivationExpiresAt()
         );
     }
 }

@@ -12,6 +12,15 @@ public record CreateTenantRequestDto(
         @NotBlank
         @Size(max = 5)
         @Pattern(regexp = "^[A-Za-z0-9_-]+$")
-        String tenantCode
+        String tenantCode,
+
+        @NotBlank
+        @Size(max = 100)
+        String companyAdminName,
+
+        @NotBlank
+        @Size(max = 100)
+        @jakarta.validation.constraints.Email
+        String companyAdminEmail
 ) {
 }

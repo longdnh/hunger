@@ -57,7 +57,7 @@ import com.engineering_lab.hunger.tenant.application.result.CreateTenantResult;
 
 	@Test
 	@Transactional
-	void createsTenantAndOwnerMembershipInPostgres() {
+	void createsTenantAndCompanyAdminMembershipInPostgres() {
 		String schema = environment.getRequiredProperty(
 				"spring.jpa.properties.hibernate.default_schema"
 		);
@@ -66,14 +66,16 @@ import com.engineering_lab.hunger.tenant.application.result.CreateTenantResult;
 				"""
 				INSERT INTO %s.users (
 				    user_id, name, email, normalized_email, password_hash,
-				    email_verified_at, created_at, updated_at
-				) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+				    platform_role, status, email_verified_at, created_at, updated_at
+				) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 				""".formatted(schema),
 				USER_ID,
 				"Tenant Creator",
 				"creator@example.com",
 				"creator@example.com",
 				"test-password-hash",
+				"TOP_ADMIN",
+				"ACTIVE",
 				Timestamp.from(now),
 				Timestamp.from(now),
 				Timestamp.from(now)
@@ -82,18 +84,19 @@ import com.engineering_lab.hunger.tenant.application.result.CreateTenantResult;
 		CreateTenantResult tenant = tenantService.create(
 				USER_ID,
 				"Engineering Lab",
-				"LAB01"
+				"LAB01",
+				"Company Admin",
+				"admin@example.com"
 		);
 
 		assertEquals(7, tenant.tenantId().version());
 		assertEquals(
-				"OWNER",
+				"ADMIN",
 				jdbcTemplate.queryForObject(
-						"SELECT role FROM %s.membership WHERE tenant_id = ? AND user_id = ?"
+						"SELECT role FROM %s.membership WHERE tenant_id = ?"
 								.formatted(schema),
 						String.class,
-						tenant.tenantId(),
-						USER_ID
+						tenant.tenantId()
 				)
 		);
 	}

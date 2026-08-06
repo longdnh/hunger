@@ -4,10 +4,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import java.time.Clock;
 import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,11 +22,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.engineering_lab.hunger.common.exception.GlobalExceptionHandler;
 import com.engineering_lab.hunger.common.security.AuthenticatedUserIdResolver;
-import com.engineering_lab.hunger.membership.application.port.MembershipRepositoryPort;
-import com.engineering_lab.hunger.membership.domain.model.MembershipDomain;
 import com.engineering_lab.hunger.tenant.application.TenantService;
-import com.engineering_lab.hunger.tenant.application.port.TenantRepositoryPort;
-import com.engineering_lab.hunger.tenant.domain.model.TenantDomain;
+import com.engineering_lab.hunger.tenant.application.result.CreateTenantResult;
 
 class TenantControllerTest {
     private static final UUID USER_ID = UUID.fromString(
@@ -37,17 +35,14 @@ class TenantControllerTest {
     private static final Instant CREATED_AT = Instant.parse("2026-07-19T08:00:00Z");
 
     private MockMvc mockMvc;
-    private CapturingMembershipRepositoryPort membershipRepository;
-
     @BeforeEach
     void setUp() {
-        membershipRepository =
-                new CapturingMembershipRepositoryPort();
-
-        TenantService tenantService = new TenantService(
-                new FakeTenantRepositoryPort(),
-                membershipRepository,
-                Clock.fixed(CREATED_AT, ZoneOffset.UTC));
+        TenantService tenantService = mock(TenantService.class);
+        when(tenantService.create(any(), any(), any(), any(), any()))
+                .thenReturn(new CreateTenantResult(
+                        TENANT_ID, "Engineering Lab", "HN_01", CREATED_AT,
+                        USER_ID, "admin@example.com", "activation-token",
+                        CREATED_AT.plusSeconds(3600)));
 
         TenantController controller = new TenantController(
                 tenantService,
@@ -64,27 +59,26 @@ class TenantControllerTest {
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(USER_ID.toString(), null, List.of());
 
-        mockMvc.perform(post("/api/v1/tenants")
+        mockMvc.perform(post("/api/v1/platform/tenants")
                         .principal(authentication)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
                                   "name": "Engineering Lab",
-                                  "tenantCode": "hn_01"
+                                  "tenantCode": "hn_01",
+                                  "companyAdminName": "Company Admin",
+                                  "companyAdminEmail": "admin@example.com"
                                 }
                                 """))
                 .andExpect(status().isCreated())
                 .andExpect(header().string(
                         HttpHeaders.LOCATION,
-                        "http://localhost/api/v1/tenants/" + TENANT_ID
+                        "http://localhost/api/v1/platform/tenants/" + TENANT_ID
                 ))
                 .andExpect(jsonPath("$.tenantId").value(TENANT_ID.toString()))
                 .andExpect(jsonPath("$.name").value("Engineering Lab"))
                 .andExpect(jsonPath("$.tenantCode").value("HN_01"));
 
-        org.junit.jupiter.api.Assertions.assertEquals(
-                USER_ID,
-                membershipRepository.saved.getUserId());
     }
 
     @Test
@@ -92,11 +86,12 @@ class TenantControllerTest {
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(USER_ID.toString(), null, List.of());
 
-        mockMvc.perform(post("/api/v1/tenants")
+        mockMvc.perform(post("/api/v1/platform/tenants")
                         .principal(authentication)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"name": "", "tenantCode": "TOO_LONG"}
+                                {"name": "", "tenantCode": "TOO_LONG",
+                                 "companyAdminName": "", "companyAdminEmail": "invalid"}
                                 """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("BAD_REQUEST"));
@@ -104,45 +99,15 @@ class TenantControllerTest {
 
     @Test
     void requiresAnAuthenticatedUser() throws Exception {
-        mockMvc.perform(post("/api/v1/tenants")
+        mockMvc.perform(post("/api/v1/platform/tenants")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"name": "Engineering Lab", "tenantCode": "HN_01"}
+                                {"name": "Engineering Lab", "tenantCode": "HN_01",
+                                 "companyAdminName": "Company Admin",
+                                 "companyAdminEmail": "admin@example.com"}
                                 """))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value("AUTHENTICATION_REQUIRED"));
     }
 
-    private static final class FakeTenantRepositoryPort
-            implements TenantRepositoryPort {
-
-        @Override
-        public boolean existsByTenantCode(String tenantCode) {
-            return false;
-        }
-
-        @Override
-        public TenantDomain save(TenantDomain tenant) {
-            return TenantDomain.rehydrate(
-                    TENANT_ID,
-                    tenant.getName(),
-                    tenant.getTenantCode(),
-                    tenant.getCreatedAt(),
-                    tenant.getUpdatedAt());
-        }
-    }
-
-    private static final class CapturingMembershipRepositoryPort
-            implements MembershipRepositoryPort {
-
-        private MembershipDomain saved;
-
-        @Override
-        public MembershipDomain save(
-                MembershipDomain membership
-        ) {
-            saved = membership;
-            return membership;
-        }
-    }
 }

@@ -1,15 +1,15 @@
 services:
-  hunger:
+  hunger-pg:
     image: postgres:18
-    container_name: hunger
+    container_name: hunger-pg
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-hunger}
+      POSTGRES_DB: ${POSTGRES_DB:-hunger-pg}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     volumes:
-      - hunger:/var/lib/postgresql
+      - hunger-pg:/var/lib/postgresql
   
   hunger-redis:
     image: redis:7
@@ -17,7 +17,8 @@ services:
     ports:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
-      - hunger:/data
+      - hunger-redis:/data
 
 volumes:
-  hunger:
+  hunger-pg:
+  hunger-redis:

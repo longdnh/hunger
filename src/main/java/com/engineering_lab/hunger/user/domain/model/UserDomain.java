@@ -90,6 +90,17 @@ public class UserDomain {
                 createdAt);
     }
 
+    public static UserDomain createActiveUser(
+            String name,
+            String email,
+            String passwordHash,
+            Instant createdAt
+    ) {
+        return new UserDomain(
+                null, name, email, passwordHash, PlatformRole.USER, UserStatus.ACTIVE,
+                createdAt, createdAt, createdAt);
+    }
+
     public static UserDomain rehydrate(
             UUID id,
             String name,

@@ -153,6 +153,7 @@ public class AuthenticationService {
         if (!validEmail
                 || !validPassword
                 || candidate.isEmpty()
+                || !candidate.get().canAuthenticate()
                 || !passwordMatches) {
             throw new InvalidCredentialsException();
         }

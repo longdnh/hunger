@@ -6,8 +6,13 @@ import java.util.UUID;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Generated;
 
+import com.engineering_lab.hunger.user.domain.model.PlatformRole;
+import com.engineering_lab.hunger.user.domain.model.UserStatus;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -38,6 +43,14 @@ public class UserJpaEntity {
         @Column(name = "password_hash", nullable = false)
         private String passwordHash;
 
+        @Enumerated(EnumType.STRING)
+        @Column(name = "platform_role", nullable = false, length = 20)
+        private PlatformRole platformRole;
+
+        @Enumerated(EnumType.STRING)
+        @Column(name = "status", nullable = false, length = 30)
+        private UserStatus status;
+
         @Column(name = "email_verified_at")
         private Instant emailVerifiedAt;
 
@@ -56,6 +69,8 @@ public class UserJpaEntity {
                         String email,
                         String normalizedEmail,
                         String passwordHash,
+                        PlatformRole platformRole,
+                        UserStatus status,
                         Instant emailVerifiedAt,
                         Instant createdAt,
                         Instant updatedAt) {
@@ -64,6 +79,8 @@ public class UserJpaEntity {
                 this.email = email;
                 this.normalizedEmail = normalizedEmail;
                 this.passwordHash = passwordHash;
+                this.platformRole = platformRole;
+                this.status = status;
                 this.emailVerifiedAt = emailVerifiedAt;
                 this.createdAt = createdAt;
                 this.updatedAt = updatedAt;

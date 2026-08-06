@@ -11,12 +11,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.engineering_lab.hunger.authentication.application.AuthenticationService;
+import com.engineering_lab.hunger.authentication.application.exception.InvalidRefreshTokenException;
 import com.engineering_lab.hunger.authentication.application.result.AuthenticationResult;
-import com.engineering_lab.hunger.authentication.web.cookie.RefreshTokenCookieFactory;
+import com.engineering_lab.hunger.authentication.web.cookie.RefreshTokenCookieManager;
+import com.engineering_lab.hunger.authentication.web.dto.ActivateAccountRequestDto;
+import com.engineering_lab.hunger.authentication.web.dto.AuthenticationResponseDto;
 import com.engineering_lab.hunger.authentication.web.dto.CsrfTokenResponseDto;
 import com.engineering_lab.hunger.authentication.web.dto.LoginRequestDto;
-import com.engineering_lab.hunger.authentication.web.dto.LoginResponseDto;
+import com.engineering_lab.hunger.user.application.UserService;
+import com.engineering_lab.hunger.user.web.dto.UserResponseDto;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @RestController
@@ -24,13 +29,17 @@ import jakarta.validation.Valid;
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
-    private final RefreshTokenCookieFactory refreshTokenCookieFactory;
+    private final UserService userService;
+    private final RefreshTokenCookieManager refreshTokenCookieManager;
 
     public AuthenticationController(
             AuthenticationService authenticationService,
-            RefreshTokenCookieFactory refreshTokenCookieFactory) {
+            UserService userService,
+            RefreshTokenCookieManager refreshTokenCookieManager
+    ) {
         this.authenticationService = authenticationService;
-        this.refreshTokenCookieFactory = refreshTokenCookieFactory;
+        this.userService = userService;
+        this.refreshTokenCookieManager = refreshTokenCookieManager;
     }
 
     @GetMapping("/csrf")
@@ -39,22 +48,74 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(
+    public ResponseEntity<AuthenticationResponseDto> login(
             @Valid @RequestBody LoginRequestDto request) {
         AuthenticationResult result = authenticationService.login(
                 request.email(),
                 request.password());
 
-        ResponseCookie refreshTokenCookie = refreshTokenCookieFactory.create(
-                result.refreshToken(),
-                result.refreshTokenExpiresAt());
+        return authenticationResponse(result);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthenticationResponseDto> refresh(
+            HttpServletRequest request
+    ) {
+        String rawRefreshToken = refreshTokenCookieManager
+                .read(request)
+                .orElseThrow(
+                        InvalidRefreshTokenException::new);
+
+        AuthenticationResult result =
+                authenticationService.refresh(
+                        rawRefreshToken);
+
+        return authenticationResponse(result);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(
+            HttpServletRequest request
+    ) {
+        authenticationService.logout(
+                refreshTokenCookieManager
+                        .read(request)
+                        .orElse(null));
+
+        ResponseCookie deletedRefreshTokenCookie =
+                refreshTokenCookieManager.delete();
+
+        return ResponseEntity
+                .noContent()
+                .header(
+                        HttpHeaders.SET_COOKIE,
+                        deletedRefreshTokenCookie.toString())
+                .build();
+    }
+
+    @PostMapping("/activate")
+    public UserResponseDto activate(
+            @Valid @RequestBody ActivateAccountRequestDto request
+    ) {
+        return UserResponseDto.from(
+                userService.activate(
+                        request.activationToken(),
+                        request.password()));
+    }
+
+    private ResponseEntity<AuthenticationResponseDto> authenticationResponse(
+            AuthenticationResult result
+    ) {
+        ResponseCookie refreshTokenCookie =
+                refreshTokenCookieManager.create(
+                        result.refreshToken(),
+                        result.refreshTokenExpiresAt());
 
         return ResponseEntity
                 .ok()
                 .header(
                         HttpHeaders.SET_COOKIE,
                         refreshTokenCookie.toString())
-                .body(LoginResponseDto.from(result));
+                .body(AuthenticationResponseDto.from(result));
     }
-
 }

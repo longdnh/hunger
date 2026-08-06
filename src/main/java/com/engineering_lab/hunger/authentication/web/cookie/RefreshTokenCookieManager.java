@@ -4,19 +4,23 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
 import com.engineering_lab.hunger.authentication.infra.config.RefreshTokenCookieProperties;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+
 @Component
-public class RefreshTokenCookieFactory {
+public class RefreshTokenCookieManager {
 
     private final RefreshTokenCookieProperties properties;
     private final Clock clock;
 
-    public RefreshTokenCookieFactory(
+    public RefreshTokenCookieManager(
             RefreshTokenCookieProperties properties,
             Clock clock) {
         this.properties = properties;
@@ -51,6 +55,41 @@ public class RefreshTokenCookieFactory {
                 .sameSite(properties.sameSite())
                 .path(properties.path())
                 .maxAge(maxAge)
+                .build();
+    }
+
+    public Optional<String> read(
+            HttpServletRequest request
+    ) {
+        Objects.requireNonNull(
+                request,
+                "request must not be null");
+
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies == null) {
+            return Optional.empty();
+        }
+
+        for (Cookie cookie : cookies) {
+            if (properties.name().equals(cookie.getName())
+                    && cookie.getValue() != null
+                    && !cookie.getValue().isBlank()) {
+                return Optional.of(cookie.getValue());
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    public ResponseCookie delete() {
+        return ResponseCookie
+                .from(properties.name(), "")
+                .httpOnly(true)
+                .secure(properties.secure())
+                .sameSite(properties.sameSite())
+                .path(properties.path())
+                .maxAge(Duration.ZERO)
                 .build();
     }
 }

@@ -1,5 +1,8 @@
 package com.engineering_lab.hunger.membership.infra.persistence.adapter;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.stereotype.Repository;
 
 import com.engineering_lab.hunger.membership.application.port.MembershipRepositoryPort;
@@ -27,5 +30,11 @@ public class MembershipJpaRepositoryAdapter
         );
 
         return MembershipJpaMapper.toDomain(saved);
+    }
+
+    @Override
+    public Optional<MembershipDomain> findByUserIdAndTenantId(UUID userId, UUID tenantId) {
+        return repository.findByUserIdAndTenantId(userId, tenantId)
+                .map(MembershipJpaMapper::toDomain);
     }
 }

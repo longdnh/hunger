@@ -20,7 +20,7 @@ import com.engineering_lab.hunger.tenant.web.dto.CreateTenantResponseDto;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/v1/tenants")
+@RequestMapping("/api/v1/platform/tenants")
 public class TenantController {
 
     private final TenantService tenantService;
@@ -46,7 +46,9 @@ public class TenantController {
         CreateTenantResult tenant = tenantService.create(
                 creatorUserId,
                 request.name(),
-                request.tenantCode());
+                request.tenantCode(),
+                request.companyAdminName(),
+                request.companyAdminEmail());
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()

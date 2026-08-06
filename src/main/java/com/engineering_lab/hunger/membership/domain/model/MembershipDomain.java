@@ -34,7 +34,7 @@ public class MembershipDomain {
         this.updatedAt = Validator.requireNotBefore(updatedAt, createdAt, "updatedAt");
     }
 
-    public static MembershipDomain createOwner(
+    public static MembershipDomain createAdmin(
             UUID userId,
             UUID tenantId,
             Instant createdAt
@@ -43,11 +43,20 @@ public class MembershipDomain {
                 null,
                 userId,
                 tenantId,
-                MembershipRole.OWNER,
+                MembershipRole.ADMIN,
                 MembershipStatus.ACTIVE,
                 createdAt,
-                createdAt
-        );
+                createdAt);
+    }
+
+    public static MembershipDomain create(
+            UUID userId,
+            UUID tenantId,
+            MembershipRole role,
+            Instant createdAt
+    ) {
+        return new MembershipDomain(
+                null, userId, tenantId, role, MembershipStatus.ACTIVE, createdAt, createdAt);
     }
 
     public static MembershipDomain rehydrate(

@@ -64,7 +64,8 @@ public class SecurityConfig {
                                                                 HttpMethod.POST,
                                                                 "/api/v1/auth/login",
                                                                 "/api/v1/auth/refresh",
-                                                                "/api/v1/auth/logout")
+                                                                "/api/v1/auth/logout",
+                                                                "/api/v1/auth/activate")
                                                 .permitAll()
 
                                                 .anyRequest().denyAll())
@@ -103,6 +104,11 @@ public class SecurityConfig {
                                 .logout(logout -> logout.disable())
 
                                 .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers(
+                                                                HttpMethod.POST,
+                                                                "/api/v1/users/register")
+                                                .permitAll()
+
                                                 .anyRequest().authenticated())
 
                                 .exceptionHandling(exception -> exception

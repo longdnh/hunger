@@ -10,6 +10,9 @@ import com.engineering_lab.hunger.user.infra.persistence.entity.UserJpaEntity;
 public interface UserJpaRepository
         extends JpaRepository<UserJpaEntity, UUID> {
 
+    boolean existsByNormalizedEmail(
+            String normalizedEmail);
+
     Optional<UserJpaEntity> findByNormalizedEmail(
             String normalizedEmail);
 }
